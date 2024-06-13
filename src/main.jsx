@@ -1,5 +1,5 @@
 import React from 'react'
-import {app} from "./Databaseconfigaration/Firebaseconnect.js"
+import {app, store} from "./Databaseconfigaration/Firebaseconnect.js"
 import ReactDOM from 'react-dom/client'
 import 'react-toastify/dist/ReactToastify.css';
 import App from './App.jsx'

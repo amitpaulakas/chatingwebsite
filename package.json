@@ -13,12 +13,14 @@
     "firebase": "^10.11.1",
     "moment": "^2.30.1",
     "react": "^18.2.0",
+    "react-cropper": "^2.3.3",
     "react-dom": "^18.2.0",
     "react-icons": "^5.2.0",
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.23.0",
     "react-toastify": "^10.0.5",
-    "uploader": "^3.48.3"
+    "uploader": "^3.48.3",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

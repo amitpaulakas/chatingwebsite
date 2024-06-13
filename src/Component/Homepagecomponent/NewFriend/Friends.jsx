@@ -10,6 +10,7 @@ import { getDatabase ,ref, onValue,set, push, remove, } from "firebase/database"
 import moment from 'moment';
 import { FaUsers } from "react-icons/fa6";
 import { Bounce, toast } from 'react-toastify';
+import { FaUser } from 'react-icons/fa';
 
 
 const Friends = () => {
@@ -36,8 +37,7 @@ onValue(friendsDbRef, (snapshot)=>{
   });
 })
 },[auth.currentUser.uid, db])
-console.log(Friendss);
-console.log(auth.currentUser.uid);
+
 /**
  * todo :HandleBlockUsers funtionality impliment
  * @params{(items)}
@@ -79,7 +79,7 @@ createAtDate:moment().format("MM/DD/YYYY, h:mm:ss a"),
             <h1 className=' mr-25 text-xl font-popins text-customBlack font-bold'> 
             
 <button type="button" className="relative inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-btn-color rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-<FaUsers className='text-2xl mr-2'/>
+<FaUser className='text-2xl mr-2'/>
 <span className="sr-only">Notifications</span>
 Friends List
   <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500   rounded-full -top-2 -end-2 ">{Friendss.length>0 ? Friendss.length: 0}</div>
@@ -96,7 +96,8 @@ Friends List
        
 
     <div className='grid-cols-1 divide-y '>
-{Friendss.length> 0 ? (Friendss?.map((item)=>(
+{Friendss.length> 0 ? 
+(Friendss?.map((item)=>(
   auth.currentUser.uid === item.reciverUid && (
     <div key={item.id} className='flex items-center  justify-between px-8 py-5  '>
     <div className='w-[70px] h-[70px] cursor-pointer relative '>

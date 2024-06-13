@@ -46,7 +46,7 @@ const [IsheFriend, setIsheFriend]= useState([]);
 // HandleFriendRequest  funtionality implement
 
  const HandleFriendRequest = (item)=>{
-  console.log(item);
+
   set(push(ref(db, 'FriendRequest/' )), {
     SenderUid:auth.currentUser.uid,
     SenderEmail: auth.currentUser.email,

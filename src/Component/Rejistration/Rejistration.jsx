@@ -138,7 +138,6 @@ sendEmailVerification(auth.currentUser).then(()=>{
     }
 
 
-
 //    HandleEye fuctionality
 const HandleEye = ( )=>{
     setEye(!Eye)

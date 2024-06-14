@@ -1,6 +1,6 @@
 import { Bounce, toast } from "react-toastify";
 
-function fireToast(msg = "message missing",position= "top-right",timeToclose= 5000,){
+function fireToastSucess(msg = "message missing",position= "top-right",timeToclose= 5000,){
     toast.info(msg, {
         position: "top-center",
         autoClose: 5000,
@@ -16,8 +16,8 @@ function fireToast(msg = "message missing",position= "top-right",timeToclose= 50
 
 //error toast 
 
-function fireToasterror(msg = "message missing",position= "top-right",timeToclose= 5000,){
-    toast.info(msg, {
+function fireToastError(msg = "message missing",position= "top-right",timeToclose= 5000,){
+    toast.error(msg, {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -29,4 +29,4 @@ function fireToasterror(msg = "message missing",position= "top-right",timeToclos
         transition: Bounce,
         });
 }
-export {fireToast,fireToasterror};
+export {fireToastSucess,fireToastError};

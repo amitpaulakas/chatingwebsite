@@ -96,10 +96,19 @@ uploader.open({ multi: false ,  mimeTypes: ["image/*"],}).then(files => {
           progress: undefined,
           theme: "light",
           transition: Bounce,
-          })
+          
+          }) 
+      }).then(()=>{
+        set(push(ref(db, "notification/")), {
+          NotificationUid:auth.currentUser.uid,
+          NotificationName: auth.currentUser.displayName,
+          NotificationNamePhoto: auth.currentUser.photoURL,
+          NotificationMessage: `${auth.currentUser.displayName} You changed your profile succefully`,
+          createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
+        });
       })
     })
-    console.log(auth.currentUser.displayName);
+    
     // setphotoURL(files[0].fileUrl);
     // set(ref(db, 'users/' + userInfo[0].userKey ), { 
     //   username: auth.currentUser.displayName,

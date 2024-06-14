@@ -9,6 +9,7 @@ import { getDatabase ,ref, onValue,set, push, remove, } from "firebase/database"
 import moment from 'moment';
 import { getAuth, onAuthStateChanged,updateProfile } from "firebase/auth";
 import { Bounce, toast } from 'react-toastify';
+import { fireToastError } from '../../../utils/utils';
 
 const FriendRequest = () => {
 const db = getDatabase();
@@ -54,12 +55,28 @@ console.log(item);
       theme: "light",
       transition: Bounce,
       });
+  }).then(()=>{
+    set(push(ref(db, "notification/")), {
+      NotificationUid:item.SenderUid,
+      NotificationName: auth.currentUser.displayName,
+      NotificationNamePhoto: auth.currentUser.photoURL,
+      NotificationMessage: `${auth.currentUser.displayName} Accept your Friend request`,
+      createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
+    });
   })
 }
 // HandlecalcleRequest funtionality implement
 const HandlecancleRequest =(item)=>{
   const friendRequestDbRef = ref(db, `FriendRequest/${ item.friendReuestUsersKey}`,);
  remove(friendRequestDbRef);
+ fireToastError();
+ set(push(ref(db, "notification/")), {
+  NotificationUid:item.SenderUid,
+  NotificationName: auth.currentUser.displayName,
+  NotificationNamePhoto: auth.currentUser.photoURL,
+  NotificationMessage: `${auth.currentUser.displayName}Reject your Friend request`,
+  createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
+});
 }
   return (
     <div>

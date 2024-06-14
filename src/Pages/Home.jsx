@@ -21,10 +21,8 @@ const user = auth.currentUser;
 
 useEffect(()=>{
   onAuthStateChanged(auth,(user)=>{
-    console.log(user);
     setuserInfo({
       ...userInfo,
-      
       emailVerified:user.emailVerified,
       displayName:user.displayName,
       email:user.email

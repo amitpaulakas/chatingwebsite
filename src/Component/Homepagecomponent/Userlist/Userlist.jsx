@@ -59,7 +59,7 @@ const [IsheFriend, setIsheFriend]= useState([]);
     reciverUserKey:item.userKey,
     createAtDate:moment().format("MM/DD/YYYY,h:mm:ss a") ,
   }).then(()=>{
-    toast.success(`${item.username} Friend Request sent`, {
+    toast.success( ` you sent a friend request to ${item.username} `, {
       position: "top-right",
       autoClose: 5000,
       hideProgressBar: false,
@@ -70,9 +70,16 @@ const [IsheFriend, setIsheFriend]= useState([]);
       theme: "light",
       transition: Bounce,
       });
+  }).then(()=>{
+    set(push(ref(db, "notification/")), {
+      NotificationUid:item.uid,
+      NotificationName: auth.currentUser.displayName,
+      NotificationNamePhoto: auth.currentUser.photoURL,
+      NotificationMessage: `${auth.currentUser.displayName} sent you a Friend request`,
+      createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
+    });
   })
-
- };
+}
 
   // console.log(userlist[0].createAtDate.split("/"));
 

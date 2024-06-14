@@ -12,19 +12,20 @@ import { FaUsers } from 'react-icons/fa';
 import Grouplist from '../GroupList/Grouplist';
 import Modal from 'react-modal';
 import { ImCross } from 'react-icons/im';
-import { fireToast, fireToasterror } from '../../../utils/utils';
+import { fireToastError, fireToastSucess } from '../../../utils/utils';
 const Friends = () => {
   const auth = getAuth();
   const db = getDatabase();
 const [MyGroup, setMyGroup]= useState([]);
 const [Groupreq, setGroupreq]= useState([]);
-const [GroupreqItem, setGroupreqItem]= useState([]);
+const [GroupreqItem,setGroupreqItem]=useState([]);
 
 const customStyles = {
   content: {
     top: '50%',
     left: '50%',
     right: 'auto',
+    width:"40%",
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
@@ -35,18 +36,18 @@ let subtitle;
 
   function openModal(GroupKey) {
     setIsOpen(true);
-     const GroupRWqDbRef =  ref(db, 'GroupRequest/');
-    onValue(GroupRWqDbRef, (snapshot)=>{
-      let GroupReqItem=[];
-      snapshot.forEach((item)=>{
-        if(item.val().GroupKey === GroupKey){
-          GroupReqItem.push({...item.val(), groupRequestkey:item.key})
+    const GroupRWqDbRef = ref(db, "GroupRequest/");
+    onValue(GroupRWqDbRef, (snapshot) => {
+      let groupRequestItem  = [];
+      snapshot.forEach((item) => {
+        if (item.val().GroupKey === GroupKey) {
+          groupRequestItem.push({ ...item.val(),groupRequestKey:item.key });
         }
-      })
-      setGroupreqItem(GroupreqdbblankArey);
-    })
-  }
-console.log(GroupreqItem);
+      });
+      setGroupreqItem(groupRequestItem );
+    });
+  };
+ 
   function afterOpenModal() {
     // references are now sync'd and can be accessed.
     subtitle.style.color = '#f00';
@@ -56,11 +57,11 @@ console.log(GroupreqItem);
     setIsOpen(false);
   }
 
-//HandleGroupreqAcceptRequest funtionality implement
-const HandleGroupreqAcceptRequest = (item)=>{
+// //HandleGroupreqAcceptRequest funtionality implement
+const GroupreqAcceptRequest =(item)=>{
   set(push(ref(db, "GroupMember/")), {
     AdminId:item.AdminId,
-    AdminUserName:item.AdminUserName,
+    AdminUserName:item.AdminUsername,
     AdminEmail:item.AdminEmail,
     GroupKey:item.GroupKey,
     Groupname:item.Groupname,
@@ -70,32 +71,39 @@ const HandleGroupreqAcceptRequest = (item)=>{
     GoupJoinMemberId:item.whoWantToJoinGroupId,
     GroupJoinMemberPhoto:item.WhoWantToJoinGroupPhoto,
     createAtDate:moment().format("MM/DD/YYYY, h:mm:ss a"),
-
-
-  });
+  }).then(()=>{
+    set(push(ref(db, "notification/")), {
+      NotificationUid:item.whoWantToJoinGroupId,
+      NotificationName: item.Groupname,
+      NotificationNamePhoto: item.GroupPhoto,
+      NotificationMessage: `${item.Groupname}Accept your Group Join Request`,
+      createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
+    })
+    fireToastSucess("")
+    remove(ref(db, "GroupRequest/" + item.groupRequestKey))
+  })
 }
 
 //HandleGroupReqcancleRequest funtionality implement
-const HandleGroupReqcancleRequest = (item)=>{
-  console.log(item);
-remove(ref(db, "GroupRequest/" + item.groupRequestkey)).then(()=>{
+const GroupReqcancleRequest = (item)=>{
+remove(ref(db, "GroupRequest/" + item.groupRequestKey)).then(()=>{
   closeModal();
-fireToasterror(`${item.Groupname} is removed`)
+fireToastError(`${item.Groupname} is removed`)
   set(push(ref(db, "notification/")), {
+    NotificationUid:item.whoWantToJoinGroupId,
     NotificationName: item.Groupname,
     NotificationNamePhoto: item.GroupPhoto,
-    NotificationMessage: `${item.Groupname} Send You a Group Join Request`,
+    NotificationMessage: `${item.Groupname} Reject your Group Join Request`,
     createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
-  });
+  })
 })
 
 }
 
 /**
- * todo fecth all group data
+ * todo fecth all group data~
  */
 useEffect(()=>{
-  
 const GroupListDbRef =  ref(db, 'GroupList/');
 onValue(GroupListDbRef, (snapshot)=>{
   let GroupdblankArey=[];
@@ -107,7 +115,7 @@ onValue(GroupListDbRef, (snapshot)=>{
   setMyGroup(GroupdblankArey);
 })
 },[auth.currentUser.uid, db])
-console.log(MyGroup);
+
   /**
  * todo fecth all group data
  */
@@ -125,7 +133,7 @@ console.log(MyGroup);
       setGroupreq(GroupreqdbblankArey);
     })
     },[auth.currentUser.uid, db])
-  console.log(Groupreq);
+  
   return (
     <div className='self-end '>
          <div className=' items-center '>
@@ -145,7 +153,7 @@ My Group
     <div  className='rounded-2xl mt-2 w-[427px]    shadow-xl h-[147px] overflow-y-auto  scrollbar-thin scrollbar-thumb-sky-700 scrollbar-track-sky-300' >
        
     <div className='grid-cols-1 divide-y '>
-    {MyGroup.length> 0 ?
+    {
     MyGroup?.map((item)=>(
     <div key={item.id} className='flex items-center  justify-between px-8 py-5  '>
     <div className='w-[70px] h-[70px] cursor-pointer relative '>
@@ -169,7 +177,7 @@ My Group
      <div className='text-sm font-popins  font-semibold text-black-500 opacity-75 px-5 py-2  rounded-lg'>
       {Groupreq.includes(auth.currentUser.uid + item.GroupKey) ? (
         <div className='flex gap-x-3'>
-           <button className='  text-white transition-all text-sm font-popins   font-semibold text-black-500  bg-gradient-to-r from-[#24c6dc] to-indigo-400 opacity-75 px-3 py-2  rounded-lg hover:bg-gradient-to-l from-[#24c6d5] to-indigo-400' onClick={()=> openModal(item.GroupKey)} >See group request</button>
+           <button className='  text-white transition-all  text-xs font-popins   font-semibold text-black-500  bg-gradient-to-r from-[#141343a2] to-indigo-400 opacity-75 px-3 py-2  rounded-lg hover:bg-gradient-to-l from-[#7b53df] to-indigo-400' onClick={()=> openModal(item.GroupKey)} >See group request</button>
            
         </div>
       ):(moment(item.createAtDate).fromNow() )}
@@ -177,13 +185,15 @@ My Group
     </div>
     </div>
       
-)):  <div  className='flex items-center  justify-center px-8 py-5  '>
+))}
+ <div>
+ {MyGroup.length === 0 && ( <div  className='flex items-center  justify-center px-8 py-5  '>
   <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
 <span class="font-medium">!</span> No Group are Available. Make Group to contact your friends
 </div>
  
-  </div>}
- 
+  </div>)}
+ </div>
    
 
     
@@ -191,7 +201,6 @@ My Group
     
  </div>
  <div>
-      
       <Modal
         isOpen={modalIsOpen}
         onAfterOpen={afterOpenModal}
@@ -199,17 +208,37 @@ My Group
         style={customStyles}
         contentLabel="Example Modal"
       >
-       
         <div >
             <button className='flex text-white justify-center items-center  w-[34px] h-[34px]  text-sm rounded-full bg-red-600' onClick={()=> closeModal()}><ImCross />
 </button>
           </div>
         
-        <div>{GroupreqItem?.map((item)=>(
-              <div key={item.id} className='flex items-center  justify-between px-8 py-5  '>
+        <div>
+        {GroupreqItem?.map((item)=>(
+          <div>
+             <div  className='flex items-center flex-col  justify-between px-8 py-5  '>
               <div className='w-[70px] h-[70px] cursor-pointer relative '>
                <picture>
-                 <img src={item.GroupPhoto? item.GroupPhoto:p4 } alt={item.GroupPhoto? item.GroupPhoto:p4 } className='w-full h-full object-cover rounded-full  shadow-lg' />
+                 <img src={item.WhoWantToJoinGroupPhoto? item.WhoWantToJoinGroupPhoto : p4 } alt={item.GroupPhoto? item.GroupPhoto:p4 } className='w-full h-full object-cover rounded-full  shadow-lg' />
+               </picture>
+             
+              </div>
+              <div className=' w-[95%] flex flex-col items-center justify-center  text-wrap'>
+               <h1 className='text-xl font-popins text-customBlack font-bold'>
+                    {item.whoWantToJoinGroupName ? `${item.whoWantToJoinGroupName} Wants to join ${item.Groupname}`: "Unkhown Name"} 
+                  </h1>
+              
+              </div>
+              <div>
+               
+              </div>
+              </div>
+            <hr className='mb-4' />
+              {/* Reques item */}
+             <div key={item.id} className='flex items-center  justify-between px-8 py-5  '>
+              <div className='w-[70px] h-[70px] cursor-pointer relative '>
+               <picture>
+                 <img src={item.GroupPhoto? item.GroupPhoto : p4 } alt={item.GroupPhoto? item.GroupPhoto:p4 } className='w-full h-full object-cover rounded-full  shadow-lg' />
                </picture>
               {item.active && (
                    <span class="absolute right-0 bottom-1 flex h-3 w-3">
@@ -227,15 +256,17 @@ My Group
               <div>
                <div className='text-sm font-popins  font-semibold text-black-500 opacity-75 px-5 py-2  rounded-lg'>
                <div className='flex items-center gap-x-4'>
-        <button className='transition-all text-sm font-popins   font-semibold text-black-500  bg-gradient-to-r from-[#24c6dc] to-indigo-400 opacity-75 px-3 py-2  rounded-lg hover:bg-gradient-to-l from-[#24c6d5] to-indigo-400'onClick={()=>HandleGroupreqAcceptRequest(item)} >Accept</button>
+        <button className='transition-all text-sm font-popins   font-semibold text-black-500  bg-gradient-to-r from-[#24c6dc] to-indigo-400 opacity-75 px-3 py-2  rounded-lg hover:bg-gradient-to-l from-[#24c6d5] to-indigo-400'  onClick={()=>GroupreqAcceptRequest(item)} >Accept</button>
         
-        <button onClick={()=>HandleGroupReqcancleRequest(item)} className="rounded-lg text-sm bg-gradient-to-r from-[#ff6767] to-[#f80778]  px-3 py-2 font-semibold text-white transition-all hover:bg-gradient-to-l opacity-75 hover:from-[#f96363] hover:to-[#d43394]">
+        <button onClick={()=>GroupReqcancleRequest(item)} className="rounded-lg text-sm bg-gradient-to-r from-[#ff6767] to-[#f80778]  px-3 py-2 font-semibold text-white transition-all hover:bg-gradient-to-l opacity-75 hover:from-[#f96363] hover:to-[#d43394]">
                       Cancel
                     </button>
      </div>
                 </div>
               </div>
               </div>
+          </div>
+             
                 
           ))
           }</div>

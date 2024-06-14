@@ -11,7 +11,7 @@ import { getDownloadURL, getStorage, ref, uploadString } from "firebase/storage"
 import { getDatabase, push, set,ref as Dbref, onValue } from "firebase/database";
 import { v4 as uuidv4 } from 'uuid';
 import { getAuth  } from "firebase/auth";
-import { fireToast, fireToasterror } from '../../../utils/utils';
+import { fireToastError, fireToastSucess } from '../../../utils/utils';
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import moment from 'moment';
@@ -81,37 +81,43 @@ const HandleInput =(event)=>{
 const HandleCreateGroup =()=>{
   const {groupPhoto,Grouptagname,Groupname}= GroupInfo;
   if(!Groupname){
-    fireToasterror("Groupname Missing","top-center",6000)
+    fireToastError("Groupname Missing","top-center",6000)
   }else if (!Grouptagname){
-    fireToasterror("Grouptagname Missing","top-center",6000)
+    fireToastError("Grouptagname Missing","top-center",6000)
   }else if (!groupPhoto){
-    fireToasterror("groupPhoto Missing","top-center",6000)
+    fireToastError("groupPhoto Missing","top-center",6000)
   }else{
-    fireToast("everything is ok","top-center",6000);
+    fireToastSucess("everything is ok","top-center",6000);
     setLoading(true)
     const storageRef = ref(storage, `Group-Images/Images${uuidv4()}`);
 // Data URL string
 const groupPhotoUrl = groupPhoto;
 uploadString(storageRef, groupPhotoUrl, 'data_url')
 .then((snapshot) => {
-  console.log('Uploaded a data_url string!');
-}).then(()=>{
-getDownloadURL(storageRef).then((downloadURL) => {
-  set(push(Dbref(db, 'GroupList/')), {
-    Groupname: Groupname,
-    Grouptagname: Grouptagname,
-    GroupPhoto:downloadURL,
-    AdminId: auth.currentUser.uid,
-    AdminUsername:auth.currentUser.displayName,
-    AdminEmail:auth.currentUser.email,
-    AdminPhotUrl:auth.currentUser.photoURL,
-    createAtDate:moment().format("MM/DD/YYYY, h:mm:ss a"),
+  getDownloadURL(storageRef).then((downloadURL) => {
+    set(push(Dbref(db, 'GroupList/')), {
+      Groupname: Groupname,
+      Grouptagname: Grouptagname,
+      GroupPhoto:downloadURL,
+      AdminId: auth.currentUser.uid,
+      AdminUsername:auth.currentUser.displayName,
+      AdminEmail:auth.currentUser.email,
+      AdminPhotUrl:auth.currentUser.photoURL,
+      createAtDate:moment().format("MM/DD/YYYY, h:mm:ss a"),
+    });
   });
-});
 }).then(()=>{
-  fireToast("group Creat Sucessfully")
+  fireToastSucess("group Creat Sucessfully")
+}).then(()=>{
+  set(push(Dbref(db, "notification/")), {
+    NotificationUid:auth.currentUser.uid,
+    NotificationName: auth.currentUser.displayName,
+    NotificationNamePhoto: auth.currentUser.photoURL,
+    NotificationMessage: `${auth.currentUser.displayName} you create a group`,
+    createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
+  });
 }).catch((err)=>{
-  fireToast(err.message)
+  fireToastError(err.message)
 }).finally(()=>{
   setLoading(false);
   setGroupInfo({
@@ -119,7 +125,7 @@ getDownloadURL(storageRef).then((downloadURL) => {
     Groupname:"",
     groupPhoto: ""
   })
-  setImage("");
+  
   closeModal();
 })
 
@@ -136,18 +142,17 @@ useEffect(()=>{
   onValue(AllGroupListDbRef, (snapshot)=>{
     let AllgrouplistblankArey=[];
     snapshot.forEach((item)=>{
-      if(item.val().AdminId !== auth.currentUser.uid){
-        AllgrouplistblankArey.push({...item.val(),userKey: item.key});
-      }else if (item.val().AdminId === auth.currentUser.uid) {
-       setRecentCurrentUser({...item.val(), userKey: item.key});
+      if (item.val().AdminId !== auth.currentUser.uid) {
+        AllgrouplistblankArey.push({
+          ...item.val(),
+          GroupKey: item.key,
+        });
       }
-        // AllgrouplistblankArey.push({...item.val(),GroupKey:item.key})
-      
     })
     setAllGroupList(AllgrouplistblankArey);
   })
   },[auth.currentUser.uid, db])
-console.log(AllGroupList);
+
  /**todo all data fatch */
  
    useEffect(()=>{
@@ -158,15 +163,13 @@ console.log(AllGroupList);
        snapshot.forEach((item)=>{
          if(item.val().whoWantToJoinGroupId === auth.currentUser.uid){
           GroupreqdbblankArey.push(
-            item.val().whoWantToJoinGroupId + item.val().GroupKey
+            item.val().whoWantToJoinGroupId + item.val().GroupKey,
           )
          }
        })
        setGroupreqest(GroupreqdbblankArey);
      })
      },[auth.currentUser.uid, db])
-   
-   
 /**
    * todo :GroupRequest database
    */
@@ -180,17 +183,19 @@ const handleJoin=(item)=>{
     createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
   })
     .then(() => {
-      fireToast(
+      fireToastSucess(
         `${auth.currentUser.displayName} Want to Join Request Send To ${item.Groupname}`,
         "top-right",
       );
     })
     .then(() => {
       set(push(Dbref(db, "notification/")), {
+        NotificationUid:item.AdminId,
         NotificationName: auth.currentUser.displayName,
         NotificationNamePhoto: auth.currentUser.photoURL,
         NotificationMessage: `${auth.currentUser.displayName} Send You a Group Join Request`,
         createdAtDate: moment().format("MM/DD/YYYY, h:mm:ss a"),
+        NotificationMessage:`${auth.currentUser.displayName} sent you a  join request to ${item.Groupname} `,
       });
     });
 }
@@ -220,7 +225,7 @@ const getCropData = () => {
       ...GroupInfo,
       groupPhoto:cropperRef.current?.cropper.getCroppedCanvas().toDataURL(),
     })
-    fireToast("Image Croping Done")
+    fireToastSucess("Image Croping Done")
     
   }
 }
@@ -258,8 +263,8 @@ Create Group
     <p className=' text-[14px] font-popins opacity-70 text-customBlack font-normal '>{item.Grouptagname}</p>
   </div>
   <div>
-      {Groupreqest.includes(auth.currentUser.uid + item.GroupKey) ?  <button className='text-xl font-popins  font-semibold text-white px-1 py-1 bg-btn-color rounded-lg' > Join pending
-      </button> : <button className='text-xl font-popins  font-semibold text-white px-3 py-2 bg-btn-color rounded-lg' onClick={() => handleJoin(item)}>Join
+      {Groupreqest.includes(auth.currentUser.uid + item.GroupKey) ?  <button className='text-sm font-popins  font-semibold text-white px-1 py-1 bg-btn-color rounded-lg' > Join pending
+      </button> : <button className='text-lg font-popins  font-semibold text-white px-3 py-2 bg-btn-color rounded-lg' onClick={() => handleJoin(item)}>Join
       </button>}
       
   </div>

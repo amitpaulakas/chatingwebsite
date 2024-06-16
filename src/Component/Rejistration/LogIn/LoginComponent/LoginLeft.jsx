@@ -89,7 +89,7 @@ const LoginLeft = () => {
     <div className='flex justify-center items-center h-[100vh] w-[55%]'>
       <div className='w-[55%]'>
         <h1 className='text-Blue1 mb-3 font-bold text-4xl font-Nunito'>Login to your account!</h1>
-        <div className='flex justify-center border-2 border-gray-500 py-5 px-3 w-[200px] cursor-pointer hover:bg-yellow-300' onClick={handleGoogleLogin}>
+        <div className='flex justify-center border-2 rounded-md border-gray-500 py-5 px-3 w-[200px] cursor-pointer hover:bg-gray-100' onClick={handleGoogleLogin}>
           <div className='flex gap-x-3 items-center font-Nunito'>
             <FaGoogle />
             <p className='text-[#03014c] font-semibold text-[14px] font-OpenSans'>Login with Google</p>
@@ -122,7 +122,7 @@ const LoginLeft = () => {
           </button>
         </form>
         <div className='text-center my-5'>
-          <p className='text-[#03014c] font-OpenSans'>Don't have any Account {" "}<span className='text-[#ea6c00] text-[13px] font-bold font-OpenSans hover:underline decoration-indigo-500'><Link to={"/SignUp"}>Sign Up</Link></span></p>
+          <p className='text-[#03014c] font-OpenSans'>Don't have any Account {" "}<span className='text-[#ea6c00] text-[13px] font-bold font-OpenSans hover:underline decoration-indigo-500'><Link to={"/singup"}>Sign Up</Link></span></p>
         </div>
       </div>
     </div>

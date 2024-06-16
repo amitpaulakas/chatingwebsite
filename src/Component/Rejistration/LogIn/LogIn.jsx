@@ -4,9 +4,9 @@ import LoginRight from './LoginComponent/LoginRight'
 
 const LogIn = () => {
   return (
-    <div className='flex'>
+    <div className='flex h-[100vh] overflow-hidden'>
       <LoginLeft/>
-      <LoginRight/>
+      <LoginRight  className="w-45%" />
 
     </div>
   )

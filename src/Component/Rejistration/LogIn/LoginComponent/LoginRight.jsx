@@ -3,9 +3,9 @@ import RightPicture from "../../../../assets/Login.jpg"
 
 const LoginRight = () => {
   return (
-    <div className=''>
+    <div className='w-[50%]'>
       <picture>
-        <img className='w-full h-auto '  src={RightPicture} alt={RightPicture} />
+        <img className='w-full  '  src={RightPicture} alt={RightPicture} />
       </picture>
     </div>
   )

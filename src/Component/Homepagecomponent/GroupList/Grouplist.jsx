@@ -15,7 +15,7 @@ import { fireToastError, fireToastSucess } from '../../../utils/utils';
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import moment from 'moment';
-import { FaUsers } from 'react-icons/fa';
+import { FaUserFriends, FaUsers } from 'react-icons/fa';
 const customStyles = {
   content: {
     top: '50%',
@@ -44,6 +44,7 @@ const Grouplist = () => {
   const storage = getStorage();
   const [AllGroupList, setAllGroupList]= useState([]);
   const [Groupreqest, setGroupreqest]= useState([]);
+  const [IfHeJoined, setIfHeJoined]= useState([]);
   const [RecentCurrentUser, setRecentCurrentUser] = useState({});
 
 
@@ -131,8 +132,23 @@ uploadString(storageRef, groupPhotoUrl, 'data_url')
 
   }
 }
-
-
+// /**
+//    * todo : fetch all data from  Groupe list  documents
+//    * @params ({})
+//    */
+useEffect(()=>{
+  const GroupMemberDbRef = Dbref(db, 'GroupMember/');
+  onValue(GroupMemberDbRef, (snapshot) => {
+    let GroupMemberDbArrey= [];
+    const data = snapshot.val();
+    snapshot.forEach((item)=>{
+      // UserArray.push(object.assign(item.val(), {userKey: item.key}));
+      GroupMemberDbArrey.push(item.val().GoupJoinMemberId + item.val().AdminId);
+    })
+    setIfHeJoined(GroupMemberDbArrey)
+  });
+},[])
+console.log(IfHeJoined);
 /**
  * todo fecth all group data
  */
@@ -147,12 +163,14 @@ useEffect(()=>{
           ...item.val(),
           GroupKey: item.key,
         });
-      }
+      }else if (item.val().uid === auth.currentUser.uid) {
+        setRecentCurrentUser({...item.val(), GroupKey: item.key});
+       }
     })
     setAllGroupList(AllgrouplistblankArey);
   })
   },[auth.currentUser.uid, db])
-
+console.log(AllGroupList);
  /**todo all data fatch */
  
    useEffect(()=>{
@@ -200,7 +218,7 @@ const handleJoin=(item)=>{
     });
 }
  
-
+console.log(auth.currentUser);
 /**todo cropimage */
 const onChange = (e) => {
   e.preventDefault();
@@ -263,7 +281,13 @@ Create Group
     <p className=' text-[14px] font-popins opacity-70 text-customBlack font-normal '>{item.Grouptagname}</p>
   </div>
   <div>
-      {Groupreqest.includes(auth.currentUser.uid + item.GroupKey) ?  <button className='text-sm font-popins  font-semibold text-white px-1 py-1 bg-btn-color rounded-lg' > Join pending
+  {IfHeJoined.includes(auth.currentUser.uid + item.AdminId)? (
+   <div>
+    <button className='text-sm font-popins  font-semibold text-white animate-pulse bg-btn-color opacity-75 px-3 py-2  rounded-lg'>Joined</button>
+    
+   </div>
+   ):
+      Groupreqest.includes(auth.currentUser.uid + item.GroupKey) ?  <button className='text-sm font-popins  font-semibold text-white px-1 py-1 bg-btn-color rounded-lg' > Join pending
       </button> : <button className='text-lg font-popins  font-semibold text-white px-3 py-2 bg-btn-color rounded-lg' onClick={() => handleJoin(item)}>Join
       </button>}
       

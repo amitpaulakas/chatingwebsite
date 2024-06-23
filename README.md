@@ -1,4 +1,4 @@
-<a target="_Blank">https://amitpaulakas.github.io/chating-app/</a>
+<a target="_Blank">https://amitpaulakas.github.io/chatingwebsite/</a>
 
 
 
